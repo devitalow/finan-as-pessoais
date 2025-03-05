@@ -135,28 +135,45 @@ if DEBUG:
         }
     }
 else:
-    # Se houver uma URL de banco de dados no ambiente (como na Vercel), use-a
-    if 'DATABASE_URL' in os.environ:
-        DATABASES = {
-            'default': dj_database_url.config(
-                conn_max_age=600,
-                ssl_require=True
-            )
-        }
-    else:
-        database_url = dj_database_url.config(
-            default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+    DATABASES = {
+        'default': dj_database_url.config(
             conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,
         )
-        
-        # Adiciona ssl_require apenas se não for SQLite
-        if database_url.get('ENGINE') != 'django.db.backends.sqlite3':
-            database_url['OPTIONS'] = {'sslmode': 'require'}
-        
-        DATABASES = {
-            'default': database_url
+    }
+
+    # Configurações adicionais para PostgreSQL
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+        DATABASES['default']['OPTIONS'] = {
+            'sslmode': 'require',
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5,
         }
 
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'ERROR'),
+            'propagate': False,
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

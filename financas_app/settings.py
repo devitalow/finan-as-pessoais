@@ -136,12 +136,23 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        'default': dj_database_url.config(
+        'default': dj_database_url.parse(
+            os.getenv('DATABASE_URL'),
             conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=True,
         )
     }
+    
+    # Configurações adicionais para PostgreSQL
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+        DATABASES['default']['OPTIONS'] = {
+            'sslmode': 'require',
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5,
+            'options': '-c statement_timeout=30000',
+        }
 
 # Logging configuration
 LOGGING = {

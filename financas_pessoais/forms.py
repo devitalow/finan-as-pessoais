@@ -1,5 +1,6 @@
 from django import forms
 from .models import Categoria, Conta, Transacao
+from django.utils import timezone
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
@@ -52,6 +53,10 @@ class TransacaoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         usuario = kwargs.pop('usuario', None)
         super().__init__(*args, **kwargs)
+        
+        # Define a data atual como valor inicial
+        if not self.instance.pk:  # Apenas para novas transações
+            self.initial['data'] = timezone.localtime(timezone.now()).date()
         
         if usuario:
             self.fields['categoria'].queryset = Categoria.objects.filter(usuario=usuario)

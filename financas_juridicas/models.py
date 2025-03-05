@@ -39,6 +39,7 @@ class CategoriaJuridica(models.Model):
     
     nome = models.CharField(max_length=100)
     tipo = models.CharField(max_length=1, choices=TIPO_CHOICES)
+    cor = models.CharField(max_length=7, default='#000000')  # Campo para cor em formato hexadecimal
     descricao = models.TextField(blank=True, null=True)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)

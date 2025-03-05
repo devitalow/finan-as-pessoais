@@ -1,5 +1,6 @@
 from django import forms
 from .models import Empresa, CategoriaJuridica, ContaJuridica, TransacaoJuridica, Imposto
+from django.utils import timezone
 
 class EmpresaForm(forms.ModelForm):
     class Meta:
@@ -13,8 +14,9 @@ class EmpresaForm(forms.ModelForm):
 class CategoriaJuridicaForm(forms.ModelForm):
     class Meta:
         model = CategoriaJuridica
-        fields = ['nome', 'tipo', 'descricao']
+        fields = ['nome', 'tipo', 'cor', 'descricao']
         widgets = {
+            'cor': forms.TextInput(attrs={'type': 'color'}),
             'descricao': forms.Textarea(attrs={'rows': 3}),
         }
 
@@ -41,6 +43,10 @@ class TransacaoJuridicaForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         empresa = kwargs.pop('empresa', None)
         super(TransacaoJuridicaForm, self).__init__(*args, **kwargs)
+        
+        # Define a data atual como valor inicial
+        if not self.instance.pk:  # Apenas para novas transações
+            self.initial['data'] = timezone.localtime(timezone.now()).date()
         
         if user and empresa:
             self.fields['categoria'].queryset = CategoriaJuridica.objects.filter(usuario=user, empresa=empresa)

@@ -1,0 +1,457 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Jurídico - Finanças{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 mb-4">
+        <h2 class="text-primary"><i class="fas fa-building me-2"></i>Dashboard Jurídico</h2>
+    </div>
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Informações da Empresa</h5>
+                {% if empresas %}
+                <div class="d-flex align-items-center">
+                    <label for="empresa_selecionada" class="text-white me-2">Empresa:</label>
+                    <form method="get" id="form-empresa" class="mb-0">
+                        <select name="empresa_id" id="empresa_selecionada" class="form-select form-select-sm" onchange="this.form.submit()">
+                            {% for empresa in empresas %}
+                                <option value="{{ empresa.id }}" {% if empresa.id == empresa_selecionada.id %}selected{% endif %}>
+                                    {{ empresa.nome }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if empresa_selecionada %}
+                    <h5 class="card-title">{{ empresa_selecionada.nome }}</h5>
+                    <p class="card-text">
+                        <strong>CNPJ:</strong> {{ empresa_selecionada.cnpj }}<br>
+                        <strong>Segmento:</strong> {{ empresa_selecionada.get_segmento_display }}
+                    </p>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                        <p>Você ainda não possui empresas cadastradas.</p>
+                        <a href="{% url 'criar_empresa' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar Empresa
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if empresa_selecionada %}
+<!-- Botões de Ação -->
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <a href="{% url 'criar_transacao_juridica' %}?tipo=R" class="btn btn-success btn-lg me-3">
+            <i class="fas fa-plus me-2"></i>Nova Receita
+        </a>
+        <a href="{% url 'criar_transacao_juridica' %}?tipo=D" class="btn btn-danger btn-lg">
+            <i class="fas fa-minus me-2"></i>Nova Despesa
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Saldo Total -->
+    <div class="col-md-3">
+        <div class="card shadow dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-wallet dashboard-icon text-primary"></i>
+                <h5 class="card-title">Saldo Total</h5>
+                <h3 class="mb-0">R$ {{ saldo_total|floatformat:2 }}</h3>
+                <p class="text-muted">Em todas as contas</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Receitas do Mês -->
+    <div class="col-md-3">
+        <div class="card shadow dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-up dashboard-icon text-success"></i>
+                <h5 class="card-title">Receitas do Mês</h5>
+                <h3 class="mb-0 receita">R$ {{ receitas_mes|floatformat:2 }}</h3>
+                <p class="text-muted">{{ mes_atual }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Despesas do Mês -->
+    <div class="col-md-3">
+        <div class="card shadow dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-down dashboard-icon text-danger"></i>
+                <h5 class="card-title">Despesas do Mês</h5>
+                <h3 class="mb-0 despesa">R$ {{ despesas_mes|floatformat:2 }}</h3>
+                <p class="text-muted">{{ mes_atual }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Impostos do Mês -->
+    <div class="col-md-3">
+        <div class="card shadow dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice-dollar dashboard-icon text-warning"></i>
+                <h5 class="card-title">Impostos do Mês</h5>
+                <h3 class="mb-0">R$ {{ impostos_mes|floatformat:2 }}</h3>
+                <p class="text-muted">{{ mes_atual }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Contas -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-wallet me-2"></i>Contas Bancárias</h5>
+                <a href="{% url 'lista_contas_juridicas' %}" class="btn btn-sm btn-light">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if contas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Conta</th>
+                                    <th>Banco</th>
+                                    <th class="text-end">Saldo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for conta in contas %}
+                                <tr>
+                                    <td>{{ conta.nome }}</td>
+                                    <td>{{ conta.banco }}</td>
+                                    <td class="text-end {% if conta.saldo < 0 %}text-danger{% endif %}">
+                                        R$ {{ conta.saldo|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                        <p>Você ainda não possui contas cadastradas para esta empresa.</p>
+                        <a href="{% url 'criar_conta_juridica' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar Conta
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transações Recentes -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transações Recentes</h5>
+                <a href="{% url 'lista_transacoes_juridicas' %}" class="btn btn-sm btn-light">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if transacoes_recentes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th class="text-end">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transacao in transacoes_recentes %}
+                                <tr>
+                                    <td>{{ transacao.descricao }}</td>
+                                    <td>{{ transacao.data|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if transacao.tipo == 'R' %}
+                                            <span class="badge bg-success">Receita</span>
+                                        {% elif transacao.tipo == 'D' %}
+                                            <span class="badge bg-danger">Despesa</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Transferência</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end {% if transacao.tipo == 'R' %}receita{% elif transacao.tipo == 'D' %}despesa{% endif %}">
+                                        R$ {{ transacao.valor|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                        <p>Você ainda não possui transações registradas para esta empresa.</p>
+                        <a href="{% url 'criar_transacao_juridica' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar Transação
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Gráfico de Receitas e Despesas -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Receitas e Despesas (Últimos 6 meses)</h5>
+            </div>
+            <div class="card-body">
+                {% if dados_mensais %}
+                    <canvas id="graficoMensal" height="300"></canvas>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p>Não há dados suficientes para gerar o gráfico.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráfico de Despesas por Categoria -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Despesas por Categoria ({{ mes_atual }})</h5>
+            </div>
+            <div class="card-body">
+                {% if dados_categorias %}
+                    <canvas id="graficoCategoria" height="300"></canvas>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                        <p>Não há dados suficientes para gerar o gráfico.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Impostos Pendentes -->
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Impostos Pendentes</h5>
+                <a href="{% url 'lista_impostos' %}" class="btn btn-sm btn-light">Ver Todos</a>
+            </div>
+            <div class="card-body">
+                {% if impostos_pendentes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Imposto</th>
+                                    <th>Competência</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Valor</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for imposto in impostos_pendentes %}
+                                <tr>
+                                    <td>{{ imposto.get_tipo_display }}</td>
+                                    <td>{{ imposto.competencia|date:"m/Y" }}</td>
+                                    <td>{{ imposto.vencimento|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if imposto.status == 'P' %}
+                                            <span class="badge bg-success">Pago</span>
+                                        {% elif imposto.status == 'A' %}
+                                            <span class="badge bg-warning">Pendente</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Vencido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">R$ {{ imposto.valor|floatformat:2 }}</td>
+                                    <td class="text-center">
+                                        <a href="{% url 'editar_imposto' imposto.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'marcar_pago' imposto.id %}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+                        <p>Não há impostos pendentes para esta empresa.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-building fa-4x text-muted mb-3"></i>
+                <h4>Nenhuma empresa selecionada</h4>
+                <p class="mb-4">Para visualizar o dashboard empresarial, você precisa cadastrar uma empresa.</p>
+                <a href="{% url 'criar_empresa' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Adicionar Empresa
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if dados_mensais %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dados para o gráfico mensal
+        const meses = [
+            {% for item in dados_mensais %}
+                "{{ item.mes }}",
+            {% endfor %}
+        ];
+        
+        const receitas = [
+            {% for item in dados_mensais %}
+                {{ item.receitas }},
+            {% endfor %}
+        ];
+        
+        const despesas = [
+            {% for item in dados_mensais %}
+                {{ item.despesas }},
+            {% endfor %}
+        ];
+        
+        // Configuração do gráfico mensal
+        const ctxMensal = document.getElementById('graficoMensal').getContext('2d');
+        new Chart(ctxMensal, {
+            type: 'bar',
+            data: {
+                labels: meses,
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        data: receitas,
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Despesas',
+                        data: despesas,
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return context.dataset.label + ': R$ ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        {% if dados_categorias %}
+        // Dados para o gráfico de categorias
+        const categorias = [
+            {% for item in dados_categorias %}
+                "{{ item.categoria }}",
+            {% endfor %}
+        ];
+        
+        const valores = [
+            {% for item in dados_categorias %}
+                {{ item.valor }},
+            {% endfor %}
+        ];
+        
+        // Cores aleatórias para o gráfico
+        const cores = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+            '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#279AF1'
+        ];
+        
+        // Configuração do gráfico de categorias
+        const ctxCategoria = document.getElementById('graficoCategoria').getContext('2d');
+        new Chart(ctxCategoria, {
+            type: 'doughnut',
+            data: {
+                labels: categorias,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: cores.slice(0, categorias.length),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return `R$ ${value.toFixed(2)}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endif %}
+{% endblock %} 

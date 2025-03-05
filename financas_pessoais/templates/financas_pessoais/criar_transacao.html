@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if form.tipo.value == 'R' or request.GET.tipo == 'R' %}
+    <div class="alert alert-success">
+        <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Nova Receita</h4>
+    </div>
+    {% elif form.tipo.value == 'D' or request.GET.tipo == 'D' %}
+    <div class="alert alert-danger">
+        <h4 class="mb-0"><i class="fas fa-minus-circle me-2"></i>Nova Despesa</h4>
+    </div>
+    {% elif form.tipo.value == 'T' or request.GET.tipo == 'T' %}
+    <div class="alert alert-info">
+        <h4 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Nova Transferência</h4>
+    </div>
+    {% else %}
+    <div class="alert alert-primary">
+        <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Nova Transação</h4>
+    </div>
+    {% endif %}
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            Por favor, corrija os erros abaixo.
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="{{ form.descricao.id_for_label }}">Descrição/Observações</label>
+                    {{ form.descricao }}
+                    {{ form.descricao.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.valor.id_for_label }}">
+                        {% if form.tipo.value == 'R' or request.GET.tipo == 'R' %}
+                            Valor a Receber
+                        {% elif form.tipo.value == 'D' or request.GET.tipo == 'D' %}
+                            Valor a Pagar
+                        {% elif form.tipo.value == 'T' or request.GET.tipo == 'T' %}
+                            Valor a Transferir
+                        {% else %}
+                            Valor
+                        {% endif %}
+                    </label>
+                    {{ form.valor }}
+                    {{ form.valor.errors }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.data.id_for_label }}">Data</label>
+                    {{ form.data }}
+                    {{ form.data.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="{{ form.tipo.id_for_label }}">Tipo</label>
+                    <div class="input-group">
+                        {{ form.tipo }}
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="Escolha o tipo de transação: Receita (entrada de dinheiro), Despesa (saída de dinheiro) ou Transferência (entre contas)"></i>
+                            </span>
+                        </div>
+                    </div>
+                    {{ form.tipo.errors }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="{{ form.metodo_pagamento.id_for_label }}">
+                        {% if form.tipo.value == 'R' or request.GET.tipo == 'R' %}
+                            Método de Recebimento
+                        {% else %}
+                            Método de Pagamento
+                        {% endif %}
+                    </label>
+                    {{ form.metodo_pagamento }}
+                    {{ form.metodo_pagamento.errors }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="{{ form.categoria.id_for_label }}">Categoria</label>
+                    {{ form.categoria }}
+                    {{ form.categoria.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.conta.id_for_label }}">
+                        {% if form.tipo.value == 'R' or request.GET.tipo == 'R' %}
+                            Conta de Destino
+                        {% elif form.tipo.value == 'D' or request.GET.tipo == 'D' %}
+                            Conta de Origem
+                        {% elif form.tipo.value == 'T' or request.GET.tipo == 'T' %}
+                            Conta de Origem
+                        {% else %}
+                            Conta
+                        {% endif %}
+                    </label>
+                    {{ form.conta }}
+                    {{ form.conta.errors }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" style="display: none;">
+                    <label for="{{ form.conta_destino.id_for_label }}">Conta de Destino</label>
+                    {{ form.conta_destino }}
+                    {{ form.conta_destino.errors }}
+                </div>
+            </div>
+        </div>
+
+        {% if form.tipo.value == 'D' or request.GET.tipo == 'D' %}
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="form-check">
+                    {{ form.is_financiamento }}
+                    <label class="form-check-label" for="{{ form.is_financiamento.id_for_label }}">
+                        É financiamento/parcelamento?
+                    </label>
+                    {{ form.is_financiamento.errors }}
+                </div>
+            </div>
+        </div>
+
+        <div id="campos-financiamento" class="mt-3" style="display: none;">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.numero_parcelas.id_for_label }}">Número de Parcelas</label>
+                        {{ form.numero_parcelas }}
+                        {{ form.numero_parcelas.errors }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.juros.id_for_label }}">Taxa de Juros (%)</label>
+                        {{ form.juros }}
+                        {{ form.juros.errors }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="{{ form.data_primeira_parcela.id_for_label }}">Data da Primeira Parcela</label>
+                        {{ form.data_primeira_parcela }}
+                        {{ form.data_primeira_parcela.errors }}
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="{{ form.valor_parcela.id_for_label }}">Valor da Parcela (calculado automaticamente)</label>
+                        {{ form.valor_parcela }}
+                        {{ form.valor_parcela.errors }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <a href="{% url 'lista_transacoes' %}" class="btn btn-secondary ml-2">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/transacao.js' %}"></script>
+<script>
+    // Inicializa os tooltips do Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %} 

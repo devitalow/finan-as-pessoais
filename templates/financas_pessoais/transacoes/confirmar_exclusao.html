@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão - Finanças App{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Exclusão</h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Atenção!</strong> Esta ação não pode ser desfeita. Você está prestes a excluir permanentemente esta transação.
+        </div>
+        
+        <h5 class="mb-3">Detalhes da Transação:</h5>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Descrição:</strong> {{ transacao.descricao }}</p>
+                <p><strong>Data:</strong> {{ transacao.data|date:"d/m/Y" }}</p>
+                <p>
+                    <strong>Tipo:</strong> 
+                    {% if transacao.tipo == 'R' %}
+                        <span class="badge bg-success">Receita</span>
+                    {% elif transacao.tipo == 'D' %}
+                        <span class="badge bg-danger">Despesa</span>
+                    {% else %}
+                        <span class="badge bg-info">Transferência</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p>
+                    <strong>Valor:</strong> 
+                    <span class="{% if transacao.tipo == 'R' %}text-success{% elif transacao.tipo == 'D' %}text-danger{% else %}text-info{% endif %}">
+                        {% if transacao.tipo == 'R' %}+{% elif transacao.tipo == 'D' %}-{% endif %}
+                        R$ {{ transacao.valor|floatformat:2 }}
+                    </span>
+                </p>
+                <p><strong>Conta:</strong> {{ transacao.conta.nome }}</p>
+                {% if transacao.tipo == 'T' %}
+                    <p><strong>Conta Destino:</strong> {{ transacao.conta_destino.nome }}</p>
+                {% endif %}
+                {% if transacao.categoria %}
+                    <p>
+                        <strong>Categoria:</strong> 
+                        <i class="fas fa-circle me-1" style="color: {{ transacao.categoria.cor }}"></i>
+                        {{ transacao.categoria.nome }}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'lista_transacoes' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Confirmar Exclusão
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

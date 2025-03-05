@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão - Finanças App{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Exclusão
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Atenção!</strong> Você está prestes a excluir a empresa <strong>{{ empresa.nome }}</strong>.
+            Esta ação não pode ser desfeita e todos os dados relacionados a esta empresa serão perdidos.
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Detalhes da Empresa</h5>
+                <p class="card-text">
+                    <strong>Nome:</strong> {{ empresa.nome }}<br>
+                    <strong>CNPJ:</strong> {{ empresa.cnpj }}<br>
+                    <strong>Razão Social:</strong> {{ empresa.razao_social }}<br>
+                    <strong>Data de Fundação:</strong> {{ empresa.data_fundacao|date:"d/m/Y" }}
+                </p>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'lista_empresas' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Confirmar Exclusão
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

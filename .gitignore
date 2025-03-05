@@ -1,0 +1,75 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Ambiente Virtual
+venv/
+ENV/
+.env
+.venv
+env.bak/
+venv.bak/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Arquivos do Sistema
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Arquivos de Configuração
+*.env
+.env.local
+.env.*.local
+
+# Arquivos de Cache
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Arquivos de Dependências
+node_modules/
+package-lock.json
+yarn.lock
+
+# Outros
+*.bak
+*.tmp
+*.temp 

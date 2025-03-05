@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Transações - {{ empresa.nome }} - Finanças App{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transações - {{ empresa.nome }}</h4>
+        <div>
+            <a href="{% url 'criar_transacao_juridica' %}?tipo=R" class="btn btn-success me-2">
+                <i class="fas fa-plus me-1"></i>Receita
+            </a>
+            <a href="{% url 'criar_transacao_juridica' %}?tipo=D" class="btn btn-danger me-2">
+                <i class="fas fa-minus me-1"></i>Despesa
+            </a>
+            <a href="{% url 'criar_transacao_juridica' %}?tipo=T" class="btn btn-info">
+                <i class="fas fa-exchange-alt me-1"></i>Transferência
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="filtroTransacao" class="form-control" placeholder="Filtrar transações...">
+                </div>
+            </div>
+        </div>
+        
+        {% if transacoes %}
+        <div class="table-responsive">
+            <table class="table table-hover" id="tabelaTransacoes">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Conta</th>
+                        <th>Valor</th>
+                        <th>Nota Fiscal</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transacao in transacoes %}
+                    <tr>
+                        <td>{{ transacao.data|date:"d/m/Y" }}</td>
+                        <td>{{ transacao.descricao }}</td>
+                        <td>
+                            {% if transacao.categoria %}
+                                {{ transacao.categoria.nome }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ transacao.conta.nome }}</td>
+                        <td class="{% if transacao.tipo == 'R' %}text-success{% elif transacao.tipo == 'D' %}text-danger{% else %}text-info{% endif %}">
+                            {% if transacao.tipo == 'R' %}+{% elif transacao.tipo == 'D' %}-{% endif %}
+                            R$ {{ transacao.valor|floatformat:2 }}
+                        </td>
+                        <td>{{ transacao.numero_nota|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'editar_transacao_juridica' transacao.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'excluir_transacao_juridica' transacao.id %}" class="btn btn-sm btn-outline-danger"
+                               onclick="return confirmarExclusao(event, 'Tem certeza que deseja excluir esta transação?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>Nenhuma transação cadastrada para esta empresa.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filtro de transações
+        const inputFiltro = document.getElementById('filtroTransacao');
+        if (inputFiltro) {
+            inputFiltro.addEventListener('keyup', function() {
+                filtrarTabela('filtroTransacao', 'tabelaTransacoes', 1); // Filtra pela coluna de descrição (índice 1)
+            });
+        }
+    });
+</script>
+{% endblock %} 

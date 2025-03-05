@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.id|yesno:"Editar,Nova" }} Transação - {{ empresa.nome }} - Finanças App{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-exchange-alt me-2"></i>
+            {% if form.instance.id %}
+                Editar Transação - {{ empresa.nome }}
+            {% else %}
+                {% if request.GET.tipo == 'R' %}
+                    Nova Receita - {{ empresa.nome }}
+                {% elif request.GET.tipo == 'D' %}
+                    Nova Despesa - {{ empresa.nome }}
+                {% elif request.GET.tipo == 'T' %}
+                    Nova Transferência - {{ empresa.nome }}
+                {% else %}
+                    Nova Transação - {{ empresa.nome }}
+                {% endif %}
+            {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.tipo.value == 'T' or request.GET.tipo == 'T' %}
+                <!-- Formulário para transferência -->
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.data|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.valor|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.conta|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.conta_destino|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ form.descricao|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ form.observacao|as_crispy_field }}
+                    </div>
+                </div>
+                <input type="hidden" name="tipo" value="T">
+            {% else %}
+                <!-- Formulário para receita ou despesa -->
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.data|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.valor|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if request.GET.tipo %}
+                            <input type="hidden" name="tipo" value="{{ request.GET.tipo }}">
+                        {% else %}
+                            {{ form.tipo|as_crispy_field }}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.conta|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.categoria|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.metodo_pagamento|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.descricao|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.numero_nota|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ form.observacao|as_crispy_field }}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-end mt-3">
+                <a href="{% url 'lista_transacoes_juridicas' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Atualiza as categorias disponíveis com base no tipo de transação
+        const tipoSelect = document.getElementById('id_tipo');
+        const categoriaSelect = document.getElementById('id_categoria');
+        
+        if (tipoSelect && categoriaSelect) {
+            tipoSelect.addEventListener('change', function() {
+                // Aqui você pode implementar uma chamada AJAX para buscar as categorias
+                // correspondentes ao tipo selecionado
+            });
+        }
+    });
+</script>
+{% endblock %} 

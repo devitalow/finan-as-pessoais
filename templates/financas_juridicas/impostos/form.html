@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ form.instance.id|yesno:"Editar,Novo" }} Imposto - {{ empresa.nome }} - Finanças App{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-file-invoice-dollar me-2"></i>{{ form.instance.id|yesno:"Editar,Novo" }} Imposto - {{ empresa.nome }}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.nome|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.valor|as_crispy_field }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.data_vencimento|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.periodo_referencia|as_crispy_field }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.status|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.data_pagamento|as_crispy_field }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    {{ form.observacao|as_crispy_field }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <a href="{% url 'lista_impostos' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar/ocultar campo de data de pagamento com base no status
+        const statusCheckbox = document.getElementById('id_status');
+        const dataPagamentoGroup = document.getElementById('div_id_data_pagamento');
+        
+        if (statusCheckbox && dataPagamentoGroup) {
+            // Função para atualizar a visibilidade do campo de data de pagamento
+            function atualizarDataPagamento() {
+                if (statusCheckbox.checked) {
+                    dataPagamentoGroup.style.display = 'block';
+                    // Se a data de pagamento estiver vazia, preencher com a data atual
+                    const dataPagamentoInput = document.getElementById('id_data_pagamento');
+                    if (dataPagamentoInput && !dataPagamentoInput.value) {
+                        const hoje = new Date();
+                        const ano = hoje.getFullYear();
+                        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                        const dia = String(hoje.getDate()).padStart(2, '0');
+                        dataPagamentoInput.value = `${ano}-${mes}-${dia}`;
+                    }
+                } else {
+                    dataPagamentoGroup.style.display = 'none';
+                }
+            }
+            
+            // Executar na inicialização
+            atualizarDataPagamento();
+            
+            // Adicionar evento de mudança
+            statusCheckbox.addEventListener('change', atualizarDataPagamento);
+        }
+        
+        // Máscara para o período de referência (MM/AAAA)
+        const periodoInput = document.getElementById('id_periodo_referencia');
+        if (periodoInput) {
+            periodoInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 6) value = value.slice(0, 6);
+                
+                if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d+)$/, '$1/$2');
+                }
+                
+                e.target.value = value;
+            });
+        }
+    });
+</script>
+{% endblock %} 

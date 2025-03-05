@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Impostos - {{ empresa.nome }} - Finanças App{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Impostos - {{ empresa.nome }}</h4>
+        <a href="{% url 'criar_imposto' %}" class="btn btn-light">
+            <i class="fas fa-plus me-1"></i>Novo Imposto
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="filtroImposto" class="form-control" placeholder="Filtrar impostos...">
+                </div>
+            </div>
+        </div>
+        
+        <ul class="nav nav-tabs mb-3" id="impostosTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pendentes-tab" data-bs-toggle="tab" data-bs-target="#pendentes" type="button" role="tab" aria-controls="pendentes" aria-selected="true">
+                    Pendentes <span class="badge bg-warning">{{ impostos_pendentes|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="vencidos-tab" data-bs-toggle="tab" data-bs-target="#vencidos" type="button" role="tab" aria-controls="vencidos" aria-selected="false">
+                    Vencidos <span class="badge bg-danger">{{ impostos_vencidos|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab" aria-controls="pagos" aria-selected="false">
+                    Pagos <span class="badge bg-success">{{ impostos_pagos|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="todos-tab" data-bs-toggle="tab" data-bs-target="#todos" type="button" role="tab" aria-controls="todos" aria-selected="false">
+                    Todos <span class="badge bg-secondary">{{ impostos|length }}</span>
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="impostosTabsContent">
+            <!-- Impostos Pendentes -->
+            <div class="tab-pane fade show active" id="pendentes" role="tabpanel" aria-labelledby="pendentes-tab">
+                {% if impostos_pendentes %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabelaImpostosPendentes">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Período</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for imposto in impostos_pendentes %}
+                            <tr>
+                                <td>{{ imposto.get_nome_display }}</td>
+                                <td>{{ imposto.periodo_referencia }}</td>
+                                <td>{{ imposto.data_vencimento|date:"d/m/Y" }}</td>
+                                <td class="text-danger">R$ {{ imposto.valor|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'marcar_imposto_pago' imposto.id %}" class="btn btn-sm btn-success me-1">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="{% url 'editar_imposto' imposto.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'excluir_imposto' imposto.id %}" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirmarExclusao(event, 'Tem certeza que deseja excluir este imposto?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Nenhum imposto pendente.
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Impostos Vencidos -->
+            <div class="tab-pane fade" id="vencidos" role="tabpanel" aria-labelledby="vencidos-tab">
+                {% if impostos_vencidos %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabelaImpostosVencidos">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Período</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for imposto in impostos_vencidos %}
+                            <tr>
+                                <td>{{ imposto.get_nome_display }}</td>
+                                <td>{{ imposto.periodo_referencia }}</td>
+                                <td>{{ imposto.data_vencimento|date:"d/m/Y" }}</td>
+                                <td class="text-danger">R$ {{ imposto.valor|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'marcar_imposto_pago' imposto.id %}" class="btn btn-sm btn-success me-1">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="{% url 'editar_imposto' imposto.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'excluir_imposto' imposto.id %}" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirmarExclusao(event, 'Tem certeza que deseja excluir este imposto?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Nenhum imposto vencido.
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Impostos Pagos -->
+            <div class="tab-pane fade" id="pagos" role="tabpanel" aria-labelledby="pagos-tab">
+                {% if impostos_pagos %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabelaImpostosPagos">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Período</th>
+                                <th>Vencimento</th>
+                                <th>Pagamento</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for imposto in impostos_pagos %}
+                            <tr>
+                                <td>{{ imposto.get_nome_display }}</td>
+                                <td>{{ imposto.periodo_referencia }}</td>
+                                <td>{{ imposto.data_vencimento|date:"d/m/Y" }}</td>
+                                <td>{{ imposto.data_pagamento|date:"d/m/Y" }}</td>
+                                <td class="text-danger">R$ {{ imposto.valor|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'editar_imposto' imposto.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'excluir_imposto' imposto.id %}" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirmarExclusao(event, 'Tem certeza que deseja excluir este imposto?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Nenhum imposto pago.
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Todos os Impostos -->
+            <div class="tab-pane fade" id="todos" role="tabpanel" aria-labelledby="todos-tab">
+                {% if impostos %}
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tabelaImpostosTodos">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Período</th>
+                                <th>Vencimento</th>
+                                <th>Pagamento</th>
+                                <th>Status</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for imposto in impostos %}
+                            <tr>
+                                <td>{{ imposto.get_nome_display }}</td>
+                                <td>{{ imposto.periodo_referencia }}</td>
+                                <td>{{ imposto.data_vencimento|date:"d/m/Y" }}</td>
+                                <td>{{ imposto.data_pagamento|date:"d/m/Y"|default:"-" }}</td>
+                                <td>
+                                    {% if imposto.status %}
+                                        <span class="badge bg-success">Pago</span>
+                                    {% elif imposto.data_vencimento < hoje %}
+                                        <span class="badge bg-danger">Vencido</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-danger">R$ {{ imposto.valor|floatformat:2 }}</td>
+                                <td>
+                                    {% if not imposto.status %}
+                                    <a href="{% url 'marcar_imposto_pago' imposto.id %}" class="btn btn-sm btn-success me-1">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'editar_imposto' imposto.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'excluir_imposto' imposto.id %}" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirmarExclusao(event, 'Tem certeza que deseja excluir este imposto?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Nenhum imposto cadastrado para esta empresa.
+                    <a href="{% url 'criar_imposto' %}" class="alert-link">Clique aqui</a> para criar um novo imposto.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filtro de impostos
+        const inputFiltro = document.getElementById('filtroImposto');
+        if (inputFiltro) {
+            inputFiltro.addEventListener('keyup', function() {
+                const tabAtiva = document.querySelector('.tab-pane.active');
+                const tabId = tabAtiva.id;
+                
+                if (tabId === 'pendentes') {
+                    filtrarTabela('filtroImposto', 'tabelaImpostosPendentes', 0);
+                } else if (tabId === 'vencidos') {
+                    filtrarTabela('filtroImposto', 'tabelaImpostosVencidos', 0);
+                } else if (tabId === 'pagos') {
+                    filtrarTabela('filtroImposto', 'tabelaImpostosPagos', 0);
+                } else if (tabId === 'todos') {
+                    filtrarTabela('filtroImposto', 'tabelaImpostosTodos', 0);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

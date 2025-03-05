@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatórios - Finanças Pessoais{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Relatórios Financeiros</h4>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Selecione o tipo de relatório que deseja visualizar:</p>
+                
+                <div class="row mt-4">
+                    <!-- Relatório por Período -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-alt fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Relatório por Período</h5>
+                                <p class="card-text">Visualize todas as suas transações em um período específico.</p>
+                                <a href="{% url 'relatorio_por_periodo' %}" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Visualizar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Relatório por Categoria -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tags fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Relatório por Categoria</h5>
+                                <p class="card-text">Analise seus gastos ou receitas agrupados por categoria.</p>
+                                <a href="{% url 'relatorio_por_categoria' %}" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Visualizar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

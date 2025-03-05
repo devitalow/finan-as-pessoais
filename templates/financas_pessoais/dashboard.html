@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Pessoal - Finanças{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 mb-4">
+        <h2 class="text-primary"><i class="fas fa-home me-2"></i>Dashboard Pessoal</h2>
+    </div>
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-wallet me-2"></i>Minhas Contas</h5>
+                <a href="{% url 'lista_contas' %}" class="btn btn-sm btn-light">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if contas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Conta</th>
+                                    <th>Tipo</th>
+                                    <th class="text-end">Saldo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for conta in contas %}
+                                <tr>
+                                    <td>{{ conta.nome }}</td>
+                                    <td>{{ conta.get_tipo_display }}</td>
+                                    <td class="text-end {% if conta.saldo < 0 %}text-danger{% endif %}">
+                                        R$ {{ conta.saldo|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                        <p>Você ainda não possui contas cadastradas.</p>
+                        <a href="{% url 'criar_conta' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar Conta
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botões de ação -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'criar_transacao' %}?tipo=R" class="btn btn-success btn-lg me-3">
+                <i class="fas fa-plus me-2"></i>Nova Receita
+            </a>
+            <a href="{% url 'criar_transacao' %}?tipo=D" class="btn btn-danger btn-lg">
+                <i class="fas fa-minus me-2"></i>Nova Despesa
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Receitas do Mês -->
+    <div class="col-md-6">
+        <div class="card shadow dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-up dashboard-icon text-success"></i>
+                <h5 class="card-title">Receitas do Mês</h5>
+                <h3 class="mb-0 receita">R$ {{ receitas_mes|floatformat:2 }}</h3>
+                <p class="text-muted">{{ mes_atual }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Despesas do Mês -->
+    <div class="col-md-6">
+        <div class="card shadow dashboard-card">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-down dashboard-icon text-danger"></i>
+                <h5 class="card-title">Despesas do Mês</h5>
+                <h3 class="mb-0 text-danger">R$ {{ despesas_mes|floatformat:2 }}</h3>
+                <p class="text-muted">{{ mes_atual }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resumo do Saldo Mensal -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">Saldo do Mês</h5>
+                        <p class="text-muted mb-0">Receitas - Despesas ({{ mes_atual }})</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="mb-0 {% if saldo_mes >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            R$ {{ saldo_mes|floatformat:2 }}
+                        </h3>
+                        {% if saldo_mes >= 0 %}
+                            <span class="badge bg-success">Positivo</span>
+                        {% else %}
+                            <span class="badge bg-danger">Negativo</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botões de ação rápida para dispositivos móveis -->
+<div class="d-md-none mb-4">
+    <div class="d-flex justify-content-center">
+        <a href="{% url 'criar_transacao' %}?tipo=R" class="btn btn-success btn-lg me-2">
+            <i class="fas fa-plus me-1"></i>Nova Receita
+        </a>
+        <a href="{% url 'criar_transacao' %}?tipo=D" class="btn btn-danger btn-lg">
+            <i class="fas fa-minus me-1"></i>Nova Despesa
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Transações Recentes -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transações Recentes</h5>
+                <a href="{% url 'lista_transacoes' %}" class="btn btn-sm btn-light">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if transacoes_recentes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th class="text-end">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transacao in transacoes_recentes %}
+                                <tr>
+                                    <td>{{ transacao.descricao }}</td>
+                                    <td>{{ transacao.data|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if transacao.tipo == 'R' %}
+                                            <span class="badge bg-success">Receita</span>
+                                        {% elif transacao.tipo == 'D' %}
+                                            <span class="badge bg-danger">Despesa</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Transferência</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end {% if transacao.tipo == 'R' %}receita{% elif transacao.tipo == 'D' %}despesa{% endif %}">
+                                        R$ {{ transacao.valor|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                        <p>Você ainda não possui transações registradas.</p>
+                        <a href="{% url 'criar_transacao' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Adicionar Transação
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráfico de Despesas por Categoria -->
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Despesas por Categoria ({{ mes_atual }})</h5>
+            </div>
+            <div class="card-body">
+                {% if despesas_por_categoria %}
+                    <!-- Gráfico para desktop -->
+                    <div class="d-none d-md-block">
+                        <canvas id="graficoCategoria" height="300"></canvas>
+                    </div>
+                    
+                    <!-- Lista para dispositivos móveis -->
+                    <div class="d-md-none">
+                        <div class="list-group">
+                            {% for item in despesas_por_categoria %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-circle me-2" style="color: {{ item.categoria__cor }}"></i>
+                                    {{ item.categoria__nome }}
+                                </div>
+                                <span class="badge bg-danger rounded-pill">R$ {{ item.total|floatformat:2 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Resumo do total de despesas -->
+                        <div class="alert alert-danger mt-3">
+                            <strong>Total de despesas:</strong> R$ {{ despesas_mes|floatformat:2 }}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                        <p>Não há dados suficientes para gerar o gráfico.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if despesas_por_categoria %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dados para o gráfico
+        const categorias = [
+            {% for item in despesas_por_categoria %}
+                "{{ item.categoria__nome }}",
+            {% endfor %}
+        ];
+        
+        const valores = [
+            {% for item in despesas_por_categoria %}
+                {{ item.total }},
+            {% endfor %}
+        ];
+        
+        // Usar as cores definidas para cada categoria
+        const cores = [
+            {% for item in despesas_por_categoria %}
+                "{{ item.categoria__cor }}",
+            {% endfor %}
+        ];
+        
+        // Configuração do gráfico
+        const ctx = document.getElementById('graficoCategoria').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categorias,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: cores,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `R$ ${value.toFixed(2)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %} 

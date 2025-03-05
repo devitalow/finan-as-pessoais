@@ -1,0 +1,114 @@
+/* Estilos gerais */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Cards */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+/* Dashboard */
+.dashboard-card {
+    transition: transform 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+/* Tabelas */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* Botões */
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    padding: 0;
+}
+
+/* Cores para tipos de transações */
+.receita {
+    color: #28a745;
+}
+
+.despesa {
+    color: #dc3545;
+}
+
+.transferencia {
+    color: #17a2b8;
+}
+
+/* Cores para status de impostos */
+.pago {
+    color: #28a745;
+}
+
+.pendente {
+    color: #ffc107;
+}
+
+.vencido {
+    color: #dc3545;
+}
+
+/* Formulários */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .dashboard-icon {
+        font-size: 2rem;
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+    }
+} 

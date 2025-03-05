@@ -1,0 +1,16 @@
+{
+    "builds": [{
+        "src": "financas_app/wsgi.py",
+        "use": "@vercel/python"
+    }],
+    "routes": [
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "financas_app/wsgi.py"
+        }
+    ]
+} 

@@ -136,22 +136,18 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True,
-        )
-    }
-
-    # Configurações adicionais para PostgreSQL
-    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
-        DATABASES['default']['OPTIONS'] = {
-            'sslmode': 'require',
-            'keepalives': 1,
-            'keepalives_idle': 30,
-            'keepalives_interval': 10,
-            'keepalives_count': 5,
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': f"db.{os.getenv('PROJECT_ID', '')}.supabase.co",
+            'PORT': '5432',
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
         }
+    }
 
 # Logging configuration
 LOGGING = {

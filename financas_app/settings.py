@@ -101,7 +101,8 @@ WSGI_APPLICATION = 'financas_app.wsgi.application'
 
 if os.getenv('DATABASE_URL'):
     DATABASES = {
-        'default': dj_database_url.config(
+        'default': dj_database_url.parse(
+            os.getenv('DATABASE_URL'),
             conn_max_age=600,
             conn_health_checks=True,
             ssl_require=True
@@ -169,9 +170,10 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Ensure the static directory exists
 STATIC_DIR = BASE_DIR / 'static'
